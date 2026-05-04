@@ -21,8 +21,6 @@ jobs:
       - name: Decide image tag
         id: resolve
         run: |
-          IMAGE_BASE="${{ vars.DOCKERHUB_USERNAME }}/$IMAGE_NAME"
-
           if [ -n "${{ github.event.inputs.tag }}" ]; then
             echo "Using provided tag"
             FINAL_TAG="${{ github.event.inputs.tag }}"
@@ -33,16 +31,26 @@ jobs:
             BRANCH=$(echo "${{ github.event.inputs.branch }}" | tr '/' '-' | tr '[:upper:]' '[:lower:]')
 
             TAGS_JSON=$(curl -s "https://hub.docker.com/v2/repositories/${{ vars.DOCKERHUB_USERNAME }}/$IMAGE_NAME/tags?page_size=100&ordering=last_updated")
-            NAMES_LIST=$(echo "$TAGS_JSON" | jq -r '.results[].name')
+            if ! echo "$TAGS_JSON" | jq -e '.results' > /dev/null 2>&1; then
+              echo "ERROR: DockerHub API did not return expected results. Response:"
+              echo "$TAGS_JSON"
+              exit 1
+            fi
 
-            echo "Available tags: $NAMES_LIST"
-
-            BRANCH_TAGS=$(echo "$NAMES_LIST" | grep "^$BRANCH-")
-            FINAL_TAG=$(echo "$BRANCH_TAGS" | head -n 1)
-
-            echo "Resolved tag: $FINAL_TAG"
+            FINAL_TAG=$(echo "$TAGS_JSON" | jq -r '.results[].name' | grep "^$BRANCH-" | head -n 1)
+            if [ -z "$FINAL_TAG" ]; then
+              echo "ERROR: No tags found for branch '$BRANCH'"
+              exit 1
+            fi
 
           else
-            echo "Either tag or branch must be provided"
+            echo "ERROR: Either tag or branch must be provided"
             exit 1
           fi
+
+          echo "Resolved tag: $FINAL_TAG"
+          echo "final_tag=$FINAL_TAG" >> $GITHUB_OUTPUT
+
+      - name: Print resolved image
+        run: |
+          echo "Image Tag: ${{ steps.resolve.outputs.final_tag }}"
