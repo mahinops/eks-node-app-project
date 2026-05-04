@@ -76,9 +76,18 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Deploy with Helmfile
+      - name: Helm Template
         env:
           tag: ${{ steps.resolve.outputs.final_tag }}
         run: |
           cd deployment
           helmfile template
+
+      # - name: Helm Diff
+      #   env:
+      #     tag: ${{ steps.resolve.outputs.final_tag }}
+      #   run: |
+      #     cd deployment
+      #     helmfile diff
+
+      
