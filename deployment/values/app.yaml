@@ -1,0 +1,25 @@
+replicaCount: 1
+
+image:
+  repository: docker.io/mahin96/eks-node-app-project
+  pullPolicy: IfNotPresent
+  tag: ""
+
+service:
+  type: ClusterIP
+  port: 80
+
+resources:
+  limits:
+    cpu: 200m
+    memory: 128Mi
+  requests:
+    cpu: 50m
+    memory: 64Mi
+
+autoscaling:
+  enabled: true
+  minReplicas: 1
+  maxReplicas: 20
+  targetCPUUtilizationPercentage: 85
+  targetMemoryUtilizationPercentage: 90

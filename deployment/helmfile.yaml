@@ -1,0 +1,10 @@
+releases:
+- name: nodejs-app
+  namespace: nodejs-app-namespace
+  chart: ./chart
+  version: "0.1.0"
+  values:
+  - ./values/app.yaml
+  set:
+  - name: image.tag
+    value: {{ requiredEnv "tag" }}

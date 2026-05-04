@@ -54,3 +54,34 @@ jobs:
       - name: Print resolved image
         run: |
           echo "Image Tag: ${{ steps.resolve.outputs.final_tag }}"
+
+      - name: Install Helm, Helmfile and Helm Diff Plugin
+        run: |
+          # Install Helm
+          curl https://baltocdn.com/helm/signing.asc | gpg --dearmor | sudo tee /usr/share/keyrings/helm.gpg > /dev/null
+          sudo apt-get install apt-transport-https --yes
+          echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/helm.gpg] https://baltocdn.com/helm/stable/debian/ all main" | sudo tee /etc/apt/sources.list.d/helm-stable-debian.list
+          sudo apt-get update
+          sudo apt-get install helm
+
+          # Install Helm Diff Plugin
+          helm plugin add https://github.com/databus23/helm-diff
+
+          # Install Helmfile
+          HELMFILE_VERSION="0.159.0"  # Update to the latest version
+          HELMFILE_URL="https://github.com/helmfile/helmfile/releases/download/v${HELMFILE_VERSION}/helmfile_${HELMFILE_VERSION}_linux_amd64.tar.gz"
+          curl -Lo helmfile.tar.gz $HELMFILE_URL
+          tar xzf helmfile.tar.gz -C /tmp
+          sudo mv /tmp/helmfile /usr/local/bin/
+          chmod +x /usr/local/bin/helmfile
+          rm helmfile.tar.gz
+
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Deploy with Helmfile
+        env:
+          tag: ${{ steps.resolve.outputs.final_tag }}
+        run: |
+          cd deployment
+          helmfile template
