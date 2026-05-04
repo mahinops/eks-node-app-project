@@ -1,0 +1,47 @@
+name: Docker Build, Push and Deploy
+
+on:
+  push:
+    branches:
+      - '**' 
+
+env:
+  IMAGE_NAME: eks-node-app-project
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ vars.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Generate tag
+        id: tag
+        run: |
+          SHORT_SHA=${GITHUB_SHA::7}
+          BRANCH=$(echo "${GITHUB_REF_NAME}" | tr '/' '-' | tr '[:upper:]' '[:lower:]')
+          DATE=$(date +%d-%m-%Y)
+          TIME=$(date +%H-%M)
+          TAG="$BRANCH-${SHORT_SHA}-${TIME}-${DATE}"
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
+        
+      - name: Build and push Docker image
+        run: |
+          docker build -t ${{ vars.DOCKERHUB_USERNAME }}/$IMAGE_NAME:${{ steps.tag.outputs.tag }} .
+          docker push ${{ vars.DOCKERHUB_USERNAME }}/$IMAGE_NAME:${{ steps.tag.outputs.tag }}
+
+      - name: Print image tag
+        run: |
+         echo "Pushed image: ${{ vars.DOCKERHUB_USERNAME }}/$IMAGE_NAME:${{ steps.tag.outputs.tag }}"
+
+
