@@ -9,3 +9,5 @@ README.md
 dist
 build
 terraform
+deployment/
+.gitignore
