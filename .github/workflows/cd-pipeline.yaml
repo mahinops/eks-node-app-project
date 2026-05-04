@@ -33,8 +33,15 @@ jobs:
             BRANCH=$(echo "${{ github.event.inputs.branch }}" | tr '/' '-' | tr '[:upper:]' '[:lower:]')
 
             TAGS_JSON=$(curl -s "https://hub.docker.com/v2/repositories/${{ vars.DOCKERHUB_USERNAME }}/$IMAGE_NAME/tags?page_size=100&ordering=last_updated")
+            NAMES_LIST=$(echo "$TAGS_JSON" | jq -r '.results[].name')
 
-            echo $TAGS_JSON
+            echo "Available tags: $NAMES_LIST"
+
+            BRANCH_TAGS=$(echo "$NAMES_LIST" | grep "^$BRANCH-")
+            FINAL_TAG=$(echo "$BRANCH_TAGS" | head -n 1)
+
+            echo "Resolved tag: $FINAL_TAG"
+
           else
             echo "Either tag or branch must be provided"
             exit 1
