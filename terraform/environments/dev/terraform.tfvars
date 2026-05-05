@@ -33,4 +33,5 @@ node_group_max_unavailable = 1
 # eks-access 
 admin_principal_arns = [
     "arn:aws:iam::922344941106:user/mahin",
+    "arn:aws:iam::922344941106:role/github-actions-role",
 ]
