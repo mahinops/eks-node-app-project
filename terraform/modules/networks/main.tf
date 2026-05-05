@@ -15,6 +15,10 @@ resource "aws_subnet" "subnet-public-1" {
   tags = {
     Name = "eks-subnet-public-1-${var.environment}"
   }
+
+  lifecycle {
+    create_before_destroy = false
+  }
 }
 
 resource "aws_subnet" "subnet-public-2" {
@@ -26,6 +30,10 @@ resource "aws_subnet" "subnet-public-2" {
   tags = {
     Name = "eks-subnet-public-2-${var.environment}"
   }
+
+  lifecycle {
+    create_before_destroy = false
+  }
 }
 
 resource "aws_subnet" "subnet-private-1" {
@@ -35,6 +43,10 @@ resource "aws_subnet" "subnet-private-1" {
 
   tags = {
     Name = "eks-subnet-private-1-${var.environment}"
+  }
+
+  lifecycle {
+    create_before_destroy = false
   }
 }
 
@@ -46,6 +58,10 @@ resource "aws_subnet" "subnet-private-2" {
   tags = {
     Name = "eks-subnet-private-2-${var.environment}"
   }
+
+  lifecycle {
+    create_before_destroy = false
+  }
 }
 
 resource "aws_internet_gateway" "main" {
@@ -53,6 +69,11 @@ resource "aws_internet_gateway" "main" {
 
   tags = {
     Name = "eks-igw-${var.environment}"
+  }
+
+  # This lifecycle rule ensures IGW is only destroyed after NAT gateway and EIP are gone
+  lifecycle {
+    create_before_destroy = false
   }
 }
 

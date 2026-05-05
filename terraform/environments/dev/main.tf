@@ -63,6 +63,8 @@ module "eks" {
   node_group_instance_types = var.node_group_instance_types
   node_group_disk_size = var.node_group_disk_size
   node_group_max_unavailable = var.node_group_max_unavailable
+
+  depends_on = [module.networks]
 }
 
 module "eks-access" {
@@ -70,4 +72,6 @@ module "eks-access" {
 
   admin_principal_arns = var.admin_principal_arns
   cluster_name = module.eks.cluster_name
+
+  depends_on = [module.eks]
 }
