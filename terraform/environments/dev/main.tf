@@ -37,3 +37,37 @@ module "networks" {
   private_subnet_cidr_block_2 = var.private_subnet_cidr_block_2
   availability_zones           = var.availability_zones
 }
+
+module "iam" {
+  source = "../../modules/iam"
+
+  environment    = var.environment
+}
+
+module "eks" {
+  source = "../../modules/eks"
+
+  cluster_name   = var.cluster_name
+  environment    = var.environment
+  eks_cluster_role_arn = module.iam.iam_role_arn
+  kubernetes_version = var.kubernetes_version
+  public_subnet_ids  = module.networks.public_subnet_ids
+  private_subnet_ids = module.networks.private_subnet_ids
+
+  # nodegroup configuration
+  eks_nodegroup_role_arn = module.iam.nodegroup_role_arn
+  node_group_desired_size = var.node_group_desired_size
+  node_group_max_size = var.node_group_max_size
+  node_group_min_size = var.node_group_min_size
+  node_group_capacity_type = var.node_group_capacity_type
+  node_group_instance_types = var.node_group_instance_types
+  node_group_disk_size = var.node_group_disk_size
+  node_group_max_unavailable = var.node_group_max_unavailable
+}
+
+module "eks-access" {
+  source = "../../modules/eks-access"
+
+  admin_principal_arns = var.admin_principal_arns
+  cluster_name = module.eks.cluster_name
+}

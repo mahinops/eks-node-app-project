@@ -14,3 +14,23 @@ public_subnet_cidr_block_2 = "10.1.2.0/24"
 private_subnet_cidr_block_1 = "10.1.3.0/24"
 private_subnet_cidr_block_2 = "10.1.4.0/24"
 availability_zones = ["us-east-1a", "us-east-1b"]
+
+# eks 
+cluster_name = "tf-eks-cluster"
+kubernetes_version = "1.33"
+
+# eks nodegroup  
+
+node_group_desired_size = 2
+node_group_max_size = 3
+node_group_min_size = 1
+node_group_capacity_type = "ON_DEMAND"
+node_group_instance_types = ["t3.small"]
+node_group_disk_size = 20
+node_group_max_unavailable = 1
+
+
+# eks-access 
+admin_principal_arns = [
+    "arn:aws:iam::922344941106:user/mahin",
+]
