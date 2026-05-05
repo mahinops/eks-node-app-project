@@ -1,4 +1,4 @@
-name: Test OIDC Connection
+name: Terraform - EKS Infrastructure
 
 on:
   workflow_dispatch:
@@ -8,10 +8,17 @@ permissions:
   contents: read
 
 jobs:
-  test:
+  terraform:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./terraform
+
     steps:
-      - name: Configure AWS Credentials
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure AWS Credentials (OIDC)
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
@@ -19,3 +26,14 @@ jobs:
 
       - name: Verify Identity
         run: aws sts get-caller-identity
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.7.0
+
+      - name: Terraform Init
+        run: terraform init
+
+      - name: Terraform Plan
+        run: terraform plan -out=tfplan
