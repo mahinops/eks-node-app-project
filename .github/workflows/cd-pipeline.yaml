@@ -76,6 +76,18 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Configure AWS Credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Update kubeconfig
+        run: |
+          aws eks update-kubeconfig \
+            --name tf-eks-cluster-dev \
+            --region ${{ secrets.AWS_REGION }}
+
       - name: Helm Template
         env:
           tag: ${{ steps.resolve.outputs.final_tag }}
@@ -83,11 +95,17 @@ jobs:
           cd deployment
           helmfile template
 
-      # - name: Helm Diff
-      #   env:
-      #     tag: ${{ steps.resolve.outputs.final_tag }}
-      #   run: |
-      #     cd deployment
-      #     helmfile diff
+      - name: Helm Diff
+        env:
+          tag: ${{ steps.resolve.outputs.final_tag }}
+        run: |
+          cd deployment
+          helmfile diff
 
+      - name: Helm Apply
+        env:
+          tag: ${{ steps.resolve.outputs.final_tag }}
+        run: |
+          cd deployment
+          helmfile apply --suppress-secrets
       
