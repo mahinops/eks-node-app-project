@@ -53,6 +53,7 @@ module "eks" {
   kubernetes_version = var.kubernetes_version
   public_subnet_ids  = module.networks.public_subnet_ids
   private_subnet_ids = module.networks.private_subnet_ids
+  nat_gateway_id     = module.networks.nat_gateway_id
 
   # nodegroup configuration
   eks_nodegroup_role_arn = module.iam.nodegroup_role_arn

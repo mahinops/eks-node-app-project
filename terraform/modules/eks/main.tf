@@ -15,6 +15,8 @@ resource "aws_eks_cluster" "main" {
 
   tags = {
     Name = "${var.cluster_name}-${var.environment}"
+    # Reference NAT Gateway to ensure proper dependency during destroy
+    NatGatewayDep = var.nat_gateway_id
   }
 }
 

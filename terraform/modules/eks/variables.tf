@@ -30,6 +30,12 @@ variable "private_subnet_ids" {
   default     = []
 }
 
+variable "nat_gateway_id" {
+  description = "The ID of the NAT Gateway (for dependency tracking)"
+  type        = string
+  default     = ""
+}
+
 variable "eks_cluster_role_arn" {
   description = "The ARN of the IAM role for the EKS cluster"
   type        = string
